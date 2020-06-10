@@ -30,6 +30,7 @@ WIT = "wit"
 LUIS = "luis"
 RASA = "rasa_nlu"
 MARKDOWN = "md"
+RASA_YAML = "rasa_yml"
 UNK = "unk"
 MARKDOWN_NLG = "nlg.md"
 DIALOGFLOW_RELEVANT = {DIALOGFLOW_ENTITIES, DIALOGFLOW_INTENT}
@@ -101,6 +102,7 @@ async def load_data_from_endpoint(
 def _reader_factory(fformat: Text) -> Optional["TrainingDataReader"]:
     """Generates the appropriate reader class based on the file format."""
     from rasa.nlu.training_data.formats import (
+        RasaYAMLReader,
         MarkdownReader,
         WitReader,
         LuisReader,
@@ -122,6 +124,8 @@ def _reader_factory(fformat: Text) -> Optional["TrainingDataReader"]:
         reader = MarkdownReader()
     elif fformat == MARKDOWN_NLG:
         reader = NLGMarkdownReader()
+    elif fformat == RASA_YAML:
+        reader = RasaYAMLReader()
     return reader
 
 
@@ -172,6 +176,14 @@ def guess_format(filename: Text) -> Text:
             if format_heuristic(js, filename):
                 guess = fformat
                 break
+
+    if guess == UNK:
+        try:
+            io_utils.read_yaml_file(filename)
+        except ValueError:
+            pass
+        else:
+            guess = RASA_YAML
 
     logger.debug(f"Training data format of '{filename}' is '{guess}'.")
 

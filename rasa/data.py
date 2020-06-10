@@ -120,7 +120,9 @@ def _find_core_nlu_files_in_directory(directory: Text,) -> Tuple[Set[Text], Set[
 
 def _is_valid_filetype(path: Text) -> bool:
     is_file = os.path.isfile(path)
-    is_datafile = path.endswith(".json") or path.endswith(".md")
+    is_datafile = (
+        path.endswith(".json") or path.endswith(".md") or path.endswith(".yml")
+    )
 
     return is_file and is_datafile
 
